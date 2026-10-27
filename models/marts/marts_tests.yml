@@ -1,0 +1,104 @@
+version: 2
+
+models:
+  - name: player_season_combined
+    description: "Combined Silver-level dataset containing merged FBref and Understat metrics per player season."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - league_key
+              - season_key
+              - team_name
+              - player_name
+
+  - name: v_player_career_summary
+    description: "Gold-level career aggregation view rollup by entity_player_id."
+    columns:
+      - name: entity_player_id
+        tests:
+          - unique
+          - not_null
+      - name: total_matches
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: ">= 0"
+  
+  - name: v_team_season_summary
+    description: "Gold-level team season aggregation summarizing squad metrics and expected goals."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - league_key
+              - season_key
+              - team_name
+
+  - name: v_team_overperformance_ranking
+    description: "Gold-level team rankings by goals, expected goals, and finishing clinicality."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - league_key
+              - season_key
+              - team_name
+
+  - name: stg_matches
+    description: "Staging fixture-level match data from football-data."
+    columns:
+      - name: match_date
+        tests:
+          - not_null
+      - name: home_team
+        tests:
+          - not_null
+      - name: away_team
+        tests:
+          - not_null
+
+  - name: v_team_match_log
+    description: "Gold-level team match log providing a team-centric row for every fixture played."
+    columns:
+      - name: match_date
+        tests:
+          - not_null
+      - name: team_name
+        tests:
+          - not_null
+      - name: opponent_name
+        tests:
+          - not_null
+      - name: points
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "in (0, 1, 3)"
+  
+  - name: v_league_table
+    description: "Gold-level standings table ranking teams by points, goal difference, and goals scored."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - league_key
+              - season_key
+              - team_name
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - league_key
+              - season_key
+              - league_position
+    columns:
+      - name: league_position
+        tests:
+          - not_null
+      - name: points
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: ">= 0"

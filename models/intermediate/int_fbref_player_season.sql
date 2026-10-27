@@ -1,0 +1,27 @@
+select
+    league_key,
+    season_key,
+    player,
+    max(nation) as nation,
+    max(age) as age,
+    string_agg(distinct team, ', ' order by team) as teams,
+    count(*) as stints,
+    sum(matches_played) as matches_played,
+    sum(starts) as starts,
+    sum(mins) as mins,
+    round(sum(mins) / 90.0, 1) as ninety_minutes,
+    sum(goals) as goals,
+    sum(assists) as assists,
+    sum(ga) as ga,
+    sum(goals_no_pk) as goals_no_pk,
+    sum(pk_scored) as pk_scored,
+    sum(pk_attempted) as pk_attempted,
+    sum(yellow_cards) as yellow_cards,
+    sum(red_cards) as red_cards,
+    round(sum(goals) * 90.0 / nullif(sum(mins), 0), 2) as goals_per_90,
+    round(sum(assists) * 90.0 / nullif(sum(mins), 0), 2) as assists_per_90,
+    round(sum(ga) * 90.0 / nullif(sum(mins), 0), 2) as ga_per_90,
+    round(sum(goals_no_pk) * 90.0 / nullif(sum(mins), 0), 2) as goals_no_pk_per_90,
+    round((sum(goals_no_pk) + sum(assists)) * 90.0 / nullif(sum(mins), 0), 2) as ga_no_pk_per_90
+from {{ ref('stg_fbref_player_season_stats') }}
+group by league_key, season_key, player

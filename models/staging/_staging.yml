@@ -1,0 +1,44 @@
+version: 2
+
+models:
+  - name: stg_fbref_player_season_stats
+    description: "Deduplicated, typed staging layer for FBref season-level player statistics."
+    columns:
+      - name: league_key
+        tests:
+          - not_null
+      - name: season_key
+        tests:
+          - not_null
+      - name: team
+        tests:
+          - not_null
+      - name: player
+        tests:
+          - not_null
+
+  - name: stg_understat_player_season_stats
+    description: "Deduplicated, typed staging layer for Understat expected goals statistics."
+    columns:
+      - name: league_key
+        tests:
+          - not_null
+      - name: season_key
+        tests:
+          - not_null
+      - name: player_id
+        tests:
+          - not_null
+      - name: team_id
+        tests:
+          - not_null
+
+  - name: int_player_crosswalk
+    description: "Entity resolution crosswalk connecting FBref players to Understat player IDs."
+    columns:
+      - name: fbref_player
+        tests:
+          - not_null
+      - name: player_id
+        tests:
+          - not_null
