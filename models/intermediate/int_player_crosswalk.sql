@@ -32,7 +32,6 @@ seeds AS (
     FROM {{ ref('player_name_map') }}
 ),
 
--- PASS 1: Seed Overrides WITH Team Verification (Resolves collisions like Rodri)
 pass1_seed_with_team AS (
     SELECT
         f.league_key,
@@ -53,7 +52,6 @@ pass1_seed_with_team AS (
        AND LOWER(f.fbref_team) = LOWER(u.understat_team)
 ),
 
--- PASS 2: Global Seed Match for Transfers (For mid-season transfers across teams)
 pass2_seed_global AS (
     SELECT
         f.league_key,
@@ -73,7 +71,6 @@ pass2_seed_global AS (
        AND s.understat_player_id = u.player_id
 ),
 
--- Combine & prioritize Team-Verified Matches first to prevent duplicate fan-outs
 unioned AS (
     SELECT * FROM pass1_seed_with_team
     UNION ALL
